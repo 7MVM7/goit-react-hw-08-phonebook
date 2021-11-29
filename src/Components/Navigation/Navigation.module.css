@@ -1,0 +1,16 @@
+a {
+  display: inline-block;
+  text-decoration: none;
+  padding: 12px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+a:hover,
+a:focus {
+  color: #000000;
+}
+
+nav {
+  display: inline-block;
+}
