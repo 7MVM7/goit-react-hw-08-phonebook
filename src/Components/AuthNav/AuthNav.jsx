@@ -20,10 +20,11 @@ const styles = {
 function AuthNav() {
   return (
     <div>
-      <Link to="/register" style={styles.link}>
+      <Link to="/register" exact style={styles.link}>
         Register
       </Link>
-      <NavLink to="/login" exact="true" style={styles.linkLog}>
+
+      <NavLink to="/login" exact style={styles.linkLog}>
         Login
       </NavLink>
     </div>

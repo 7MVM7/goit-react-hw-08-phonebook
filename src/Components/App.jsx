@@ -1,83 +1,70 @@
-// import ContactsForm from "./ContactsForm/ContactsForm";
-// import Filter from "./Filter/Filter";
-// import ContactsList from "./ContactsList/ContactsList";
-
-
-// export default function App() {
-
-
-//   return (
-//     <div>
-//       <h1>Phonebook</h1>
-//       <ContactsForm/>
-
-//       <h2>Contacts</h2>
-//       <Filter />
-// //       <ContactsList/>
-// //     </div>
-// //   );
-// }
-
-import { Routes, Route } from 'react-router-dom';
-import Login from '../view/Login';
-import Register from '../view/Register';
-import Contact from '../view/Contacts';
-import HomePage from '../view/HomePage';
+import { Switch, Redirect } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect,Suspense,lazy } from 'react';
 import AppBar from './AppBar/AppBar';
 import PrivateRoute from '../routes/PrivateRoute';
 import PublicRoute from '../routes/PublicRoute';
 import { fetchCurrentUser } from '../redux/auth/auth-back-end';
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { isAuth } from '../redux/auth/auth-selectors';
+// import { isAuth } from '../redux/auth/auth-selectors';
+import { getFetchingCurrent } from '../redux/auth/auth-selectors';
+
+
+const HomePage = lazy(() => import('../view/HomePage'));
+const Register = lazy(() => import('../view/Register'));
+const Login = lazy(() => import('../view/Login'));
+const Contact = lazy(() => import('../view/Contacts'));
 
 function App() {
-  const isLoggedIn = useSelector(isAuth);
+  // const isLoggedIn = useSelector(isAuth);
   const dispatch = useDispatch();
+  const isFetchingCurrentUser = useSelector(getFetchingCurrent);
 
-  useEffect(() => {
-    dispatch(fetchCurrentUser(isLoggedIn));
-  }, [dispatch, isLoggedIn]);
+     useEffect(() => dispatch(fetchCurrentUser()), [dispatch]);
+
+
+  // useEffect(() => {
+  //   dispatch(fetchCurrentUser(isLoggedIn));
+  // }, [dispatch, isLoggedIn]);
+
 
   return (
     <div>
+       {isFetchingCurrentUser ? (
+        <h2>Loading</h2>
+       ) : ( 
+         <>
       <AppBar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <PublicRoute restricted redirectTo="/contacts">
-              <HomePage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <PublicRoute restricted>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PublicRoute restricted>
-              <Register />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/contacts"
-          element={
-            <PrivateRoute redirectTo="/login">
-              <Contact />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </div>
+      <Switch>
+<Suspense fallback={<p>Завантаження...</p>}>
+<PublicRoute exact path="/">
+<HomePage/>
+  </PublicRoute>
+       <PublicRoute exact path="/register" restricted>
+<Register/>
+        </PublicRoute>
+     
+        <PublicRoute
+                exact
+                path="/login"
+                redirectTo="/contacts"
+                restricted
+              >
+                  <Login />
+              </PublicRoute>
+              <PrivateRoute path="/contacts">
+                <Contact/>
+              </PrivateRoute>
+              <Redirect to="/" />
+            </Suspense>
+          </Switch>
+          </>
+       )}
+</div>
   );
 }
-
 export default App;
+
+
+
+
+
